@@ -6,23 +6,17 @@ interface ITrend{
 
 export const Container = styled.div`
   height: 400px;
-  width: 15vw;
+  width: 300px;
   margin-top: 50px;
   border: 1px solid #D1D5D7;
   color: #091827;
-  min-width: 250px;
+
   font-size: 16px;
   display: flex;
   flex-direction: column;
 
   p {
     padding-top: 16px;
-  }
-
-  .recharts-responsive-container {
-    width: 95%;
-    height: 70%;
-    margin-bottom: 24px;
   }
 `
 

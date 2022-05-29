@@ -43,18 +43,16 @@ export default function Card({ ticker }: Props) {
           />
         </styled.Price>
       </styled.StockInfo>
-      <ResponsiveContainer width="100%" height="75%">
-        <LineChart data={values}>
-          <Line
-            type="basis"
-            name="Valor"
-            dataKey="value"
-            stroke="#006b83"
-            fill="#00ADD2"
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <LineChart data={values} width={300} height={150}>
+        <Line
+          type="basis"
+          name="Valor"
+          dataKey="value"
+          stroke="#006b83"
+          fill="#00ADD2"
+          dot={false}
+        />
+      </LineChart>
     </styled.Container>
   );
 }

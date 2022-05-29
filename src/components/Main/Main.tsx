@@ -33,6 +33,9 @@ export default function Main() {
               timestamp: message.timestamp,
               value: message[ticker],
             });
+            if (found.prices.length > 50) {
+              found.prices.shift();
+            }
           }
         } else {
           messageHistory.push({
@@ -107,8 +110,8 @@ export default function Main() {
       </styled.Header>
       <styled.CardsWrapper>
         {messageHistory.map((e, i) => (
-          <div style={{ margin: "16px" }}>
-            <Card ticker={e} key={String(i)} />
+          <div style={{ margin: "16px" }} key={String(i)}>
+            <Card ticker={e} />
           </div>
         ))}
       </styled.CardsWrapper>
