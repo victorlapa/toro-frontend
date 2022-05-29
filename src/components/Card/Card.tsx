@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { LineChart, Line } from "recharts";
 
 import * as styled from "./styles";
 
