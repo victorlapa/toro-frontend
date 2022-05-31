@@ -8,71 +8,66 @@ import { Stock } from "../../types/stock";
 import Button from "../Button";
 import Card from "../Card/Card";
 
-export default function Main() {
-  const [socketUrl] = useState("ws://localhost:8080/quotes");
-  const [messageHistory, setMessageHistory] = useState<Stock[]>([]);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>();
+interface StockMessage {
+  [key: string]: number;
+  timestamp: number;
+}
 
-  const { lastJsonMessage } = useWebSocket(socketUrl, {
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL as string;
+const PRICES_LIMIT = 50 as const;
+
+export default function Main() {
+  const [messageHistory, setMessageHistory] = useState<Stock[]>([]);
+  const [sortDirection, setSortDirection] = useState<
+    "asc" | "desc" | undefined
+  >();
+
+  const { lastJsonMessage } = useWebSocket(SOCKET_URL, {
     shouldReconnect: () => true,
   });
 
   useEffect(() => {
-    const message = lastJsonMessage as Record<string, any>;
+    const message = lastJsonMessage as StockMessage;
 
     if (message) {
-      const ticker = Object.keys(message).find((e) => e !== "timestamp");
+      const tickerKey = Object.keys(message).find((e) => e !== "timestamp");
 
-      if (ticker) {
-        const found = messageHistory.find((e) => e.ticker === ticker);
+      if (tickerKey) {
+        const found = messageHistory.find((e) => e.ticker === tickerKey);
 
         if (found) {
           const lastPrice = found.prices[found.prices.length - 1];
           if (lastPrice.timestamp !== message.timestamp) {
             found.prices.push({
               timestamp: message.timestamp,
-              value: message[ticker],
+              value: message[tickerKey],
             });
-            if (found.prices.length > 50) {
+            if (found.prices.length > PRICES_LIMIT) {
               found.prices.shift();
             }
           }
         } else {
           messageHistory.push({
-            ticker,
-            prices: [{ timestamp: message.timestamp, value: message[ticker] }],
+            ticker: tickerKey,
+            prices: [
+              { timestamp: message.timestamp, value: message[tickerKey] },
+            ],
           });
         }
       }
       const sorted = messageHistory.sort((a, b) => {
-        if (sortDirection === "asc") {
-          if (
-            a.prices[a.prices.length - 1].value >
-            b.prices[b.prices.length - 1].value
-          ) {
-            return 1;
-          } else if (
-            b.prices[b.prices.length - 1].value >
-            a.prices[a.prices.length - 1].value
-          ) {
-            return -1;
-          } else {
-            return 0;
-          }
+        if (
+          a.prices[a.prices.length - 1].value >
+          b.prices[b.prices.length - 1].value
+        ) {
+          return sortDirection === "asc" ? -1 : 1;
+        } else if (
+          b.prices[b.prices.length - 1].value >
+          a.prices[a.prices.length - 1].value
+        ) {
+          return sortDirection === "asc" ? 1 : -1;
         } else {
-          if (
-            b.prices[b.prices.length - 1].value >
-            a.prices[a.prices.length - 1].value
-          ) {
-            return 1;
-          } else if (
-            a.prices[a.prices.length - 1].value >
-            b.prices[b.prices.length - 1].value
-          ) {
-            return -1;
-          } else {
-            return 0;
-          }
+          return 0;
         }
       });
 
@@ -83,8 +78,9 @@ export default function Main() {
         }))
       );
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastJsonMessage]);
+  }, [lastJsonMessage, sortDirection]);
 
   return (
     <styled.Container>
